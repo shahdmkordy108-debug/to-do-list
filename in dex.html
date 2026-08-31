@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<!-- saved from url=(0062)file:///C:/Users/R-15/Downloads/gemini-code-1788185783799.html -->
+<html lang="ar" dir="rtl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيقي الشخصي لتنظيم الوقت | Daily &amp; Weekly Planner</title>
+    
+    <!-- خط Cairo وأيقونات FontAwesome -->
+    <link href="./in dex_files/css2" rel="stylesheet">
+    <link rel="stylesheet" href="./in dex_files/all.min.css">
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-body: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            
+            --high-p: #ef4444;
+            --med-p: #f59e0b;
+            --low-p: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* --- Header & Stats --- */
+        header {
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.15);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-title h1 { font-size: 1.8rem; font-weight: 800; }
+        .header-title p { opacity: 0.9; font-size: 0.95rem; }
+
+        .stats-cards {
+            display: flex;
+            gap: 15px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            padding: 10px 18px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-box span { font-size: 1.2rem; font-weight: 800; display: block; }
+        .stat-box label { font-size: 0.75rem; opacity: 0.85; }
+
+        .progress-section {
+            margin-top: 20px;
+        }
+
+        .progress-bar-bg {
+            background: rgba(255, 255, 255, 0.2);
+            height: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-bar-fill {
+            background: #4ade80;
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* --- Main Layout Grid --- */
+        .app-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .app-grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+        }
+
+        /* --- Form Elements --- */
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-muted);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-add {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 5px;
+        }
+
+        .btn-add:hover { background: var(--primary-hover); }
+
+        /* --- Filters (Days Bar) --- */
+        .days-filter {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .day-chip {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .day-chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* --- Task Items --- */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .task-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+            background: #f8fafc;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+        }
+
+        .task-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .task-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .task-text {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .task-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 10px;
+            margin-top: 2px;
+        }
+
+        .priority-badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        .p-high { background: #fee2e2; color: var(--high-p); }
+        .p-med { background: #fef3c7; color: var(--med-p); }
+        .p-low { background: #d1fae5; color: var(--low-p); }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .btn-delete:hover { color: var(--high-p); }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            opacity: 0.4;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="header-top">
+            <div class="header-title">
+                <h1>📅 منظمي الشخصي اليومي والأسبوعي</h1>
+                <p>خطط يومك بنفسك وميّز أولوياتك بسهولة</p>
+            </div>
+            <div class="stats-cards">
+                <div class="stat-box">
+                    <span id="total-count">0</span>
+                    <label>إجمالي المهام</label>
+                </div>
+                <div class="stat-box">
+                    <span id="done-count">0</span>
+                    <label>المكتملة</label>
+                </div>
+                <div class="stat-box">
+                    <span id="percent-count">0%</span>
+                    <label>نسبة الإنجاز</label>
+                </div>
+            </div>
+        </div>
+        <div class="progress-section">
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-bar" style="width: 0%;"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="app-grid">
+        
+        <!-- Sidebar: Add Task & Notes -->
+        <div>
+            <!-- Add Task Form -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fa-solid fa-plus-circle"></i> إضافة مهمة جديدة
+                </div>
+                <form id="task-form">
+                    <div class="form-group">
+                        <label>عنوان المهمة</label>
+                        <input type="text" id="task-title" placeholder="مثلاً: مذاكرة درس، شراء مستلزمات..." required="">
+                    </div>
+
+                    <div class="form-group">
+                        <label>اليوم</label>
+                        <select id="task-day">
+                            <option value="السبت">السبت</option>
+                            <option value="الأحد">الأحد</option>
+                            <option value="الاثنين">الاثنين</option>
+                            <option value="الثلاثاء">الثلاثاء</option>
+                            <option value="الأربعاء">الأربعاء</option>
+                            <option value="الخميس">الخميس</option>
+                            <option value="الجمعة">الجمعة</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>الوقت (اختياري)</label>
+                        <input type="time" id="task-time">
+                    </div>
+
+                    <div class="form-group">
+                        <label>الأولوية</label>
+                        <select id="task-priority">
+                            <option value="high">🔴 عالية (عاجلة جداً)</option>
+                            <option value="med" selected="">🟠 متوسطة (مهمة)</option>
+                            <option value="low">🟢 منخفضة (عادية)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-add"><i class="fa-solid fa-check"></i> حفظ المهمة</button>
+                </form>
+            </div>
+
+            <!-- Notes Notepad -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fa-solid fa-sticky-note"></i> ملاحظات سريعة
+                </div>
+                <textarea id="quick-notes" rows="5" placeholder="اكتبي أي ملاحظة أو فكرة تحبي تفتكريها هنا..." style="resize: vertical;"></textarea>
+                <small style="color: var(--text-muted); display: block; margin-top: 5px;">تُحفظ الملاحظات تلقائياً أثناء الكتابة.</small>
+            </div>
+        </div>
+
+        <!-- Main View: Day Filter & Task List -->
+        <div>
+            <!-- Filter Days -->
+            <div class="days-filter">
+                <button class="day-chip" onclick="filterTasks(&#39;all&#39;, this)">كل الأيام</button>
+                <button class="day-chip" onclick="filterTasks(&#39;السبت&#39;, this)">السبت</button>
+                <button class="day-chip" onclick="filterTasks(&#39;الأحد&#39;, this)">الأحد</button>
+                <button class="day-chip active" onclick="filterTasks(&#39;الاثنين&#39;, this)">الاثنين</button>
+                <button class="day-chip" onclick="filterTasks(&#39;الثلاثاء&#39;, this)">الثلاثاء</button>
+                <button class="day-chip" onclick="filterTasks(&#39;الأربعاء&#39;, this)">الأربعاء</button>
+                <button class="day-chip" onclick="filterTasks(&#39;الخميس&#39;, this)">الخميس</button>
+                <button class="day-chip" onclick="filterTasks(&#39;الجمعة&#39;, this)">الجمعة</button>
+            </div>
+
+            <!-- Task Display Container -->
+            <div class="task-list" id="task-container">
+                    <div class="empty-state card">
+                        <i class="fa-regular fa-clipboard"></i>
+                        <p>لا توجد مهام مضافة لهذا اليوم بعد.</p>
+                    </div>
+                </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Load stored data or initialize
+        let tasks = JSON.parse(localStorage.getItem('my_planner_tasks')) || [];
+        let currentFilter = 'all';
+
+        const taskForm = document.getElementById('task-form');
+        const taskContainer = document.getElementById('task-container');
+        const notesInput = document.getElementById('quick-notes');
+
+        // Load Notes
+        notesInput.value = localStorage.getItem('my_planner_notes') || '';
+        notesInput.addEventListener('input', () => {
+            localStorage.setItem('my_planner_notes', notesInput.value);
+        });
+
+        // Add Task Event
+        taskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('task-title').value;
+            const day = document.getElementById('task-day').value;
+            const time = document.getElementById('task-time').value;
+            const priority = document.getElementById('task-priority').value;
+
+            const newTask = {
+                id: Date.now(),
+                title,
+                day,
+                time,
+                priority,
+                completed: false
+            };
+
+            tasks.push(newTask);
+            saveAndRender();
+            taskForm.reset();
+        });
+
+        // Toggle Task Completion
+        function toggleTask(id) {
+            tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+            saveAndRender();
+        }
+
+        // Delete Task
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveAndRender();
+        }
+
+        // Filter Tasks by Day
+        function filterTasks(day, btn) {
+            currentFilter = day;
+            document.querySelectorAll('.day-chip').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderTasks();
+        }
+
+        // Save to LocalStorage & Refresh UI
+        function saveAndRender() {
+            localStorage.setItem('my_planner_tasks', JSON.stringify(tasks));
+            renderTasks();
+            updateStats();
+        }
+
+        // Update Progress & Numbers
+        function updateStats() {
+            const total = tasks.length;
+            const done = tasks.filter(t => t.completed).length;
+            const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('done-count').textContent = done;
+            document.getElementById('percent-count').textContent = percent + '%';
+            document.getElementById('progress-bar').style.width = percent + '%';
+        }
+
+        // Render Task List HTML
+        function renderTasks() {
+            taskContainer.innerHTML = '';
+
+            let filtered = tasks;
+            if (currentFilter !== 'all') {
+                filtered = tasks.filter(t => t.day === currentFilter);
+            }
+
+            if (filtered.length === 0) {
+                taskContainer.innerHTML = `
+                    <div class="empty-state card">
+                        <i class="fa-regular fa-clipboard"></i>
+                        <p>لا توجد مهام مضافة لهذا اليوم بعد.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(task => {
+                const priorityLabels = { high: 'عالية', med: 'متوسطة', low: 'منخفضة' };
+                const priorityClasses = { high: 'p-high', med: 'p-med', low: 'p-low' };
+
+                const item = document.createElement('div');
+                item.className = `task-item ${task.completed ? 'completed' : ''}`;
+                item.innerHTML = `
+                    <div class="task-left">
+                        <input type="checkbox" class="checkbox" ${task.completed ? 'checked' : ''} onclick="toggleTask(${task.id})">
+                        <div class="task-info">
+                            <span class="task-text">${task.title}</span>
+                            <div class="task-meta">
+                                <span><i class="fa-regular fa-calendar"></i> ${task.day}</span>
+                                ${task.time ? `<span><i class="fa-regular fa-clock"></i> ${task.time}</span>` : ''}
+                                <span class="priority-badge ${priorityClasses[task.priority]}">${priorityLabels[task.priority]}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-delete" onclick="deleteTask(${task.id})" title="حذف المهمة">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                taskContainer.appendChild(item);
+            });
+        }
+
+        // Initial render on page load
+        saveAndRender();
+    </script>
+
+</body></html>
